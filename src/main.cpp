@@ -63,6 +63,8 @@ int main() {
         std::cout << command_to_know << ": not found\n";
       }
 
+    }else if(command=="pwd"){
+      std::cout << std::filesystem::current_path().string() << '\n';
     } else {
 
       std::vector<std::string> args;
