@@ -34,6 +34,7 @@ int main() {
       std::cout << std::filesystem::current_path().string() << '\n';
     }else if (command == "cd") {
       std::string p = line.substr(3);
+      p = std::regex_replace(p, std::regex("~"), std::getenv("HOME"));
       if (chdir(p.c_str()) != 0) {
         std::cout << "cd: " << p << ": No such file or directory\n";
       }
