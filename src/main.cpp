@@ -35,11 +35,11 @@ int main() {
     } else if (command == "type") {
 
       bool found = false;
-      std::string builtin[3] = {"echo", "exit", "type"};
+      std::string builtin[3] = {"echo", "exit", "type","pwd"};
       std::string command_to_know;
       ss >> command_to_know;
 
-      for (int i = 0; i < 3; i++) {
+      for (int i = 0; i < 4; i++) {
         if (builtin[i] == command_to_know) {
           std::cout << command_to_know << " is a shell builtin\n";
           found = true;
