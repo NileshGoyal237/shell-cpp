@@ -35,7 +35,7 @@ int main() {
     } else if (command == "type") {
 
       bool found = false;
-      std::string builtin[3] = {"echo", "exit", "type","pwd"};
+      std::string builtin[4] = {"echo", "exit", "type","pwd"};
       std::string command_to_know;
       ss >> command_to_know;
 
