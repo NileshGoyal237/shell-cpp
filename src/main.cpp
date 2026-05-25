@@ -32,14 +32,19 @@ int main() {
 
     }else if(command=="pwd"){
       std::cout << std::filesystem::current_path().string() << '\n';
+    }else if (commmand == "cd ") {
+      string p = s.substr(3);
+      if (chdir(p.c_str()) != 0) {
+        cout << "cd: " << p << ": No such file or directory\n";
+      }
     } else if (command == "type") {
 
       bool found = false;
-      std::string builtin[4] = {"echo", "exit", "type","pwd"};
+      std::string builtin[5] = {"echo", "exit", "type","pwd","cd"};
       std::string command_to_know;
       ss >> command_to_know;
 
-      for (int i = 0; i < 4; i++) {
+      for (int i = 0; i < 5; i++) {
         if (builtin[i] == command_to_know) {
           std::cout << command_to_know << " is a shell builtin\n";
           found = true;
