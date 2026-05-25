@@ -33,7 +33,7 @@ int main() {
     }else if(command=="pwd"){
       std::cout << std::filesystem::current_path().string() << '\n';
     }else if (commmand == "cd ") {
-      std::string p = s.substr(3);
+      std::string p = line.substr(3);
       if (chdir(p.c_str()) != 0) {
         std::cout << "cd: " << p << ": No such file or directory\n";
       }
