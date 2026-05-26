@@ -23,9 +23,17 @@ int main() {
     std::string current;
     bool in_single_quote = false;
     char cc='!';
+    char lc='!';
     for (char c : line) {
-
-      if (c == '\'') {
+      if(lc=='\\'){
+         if (!current.empty()) {
+          tokens.push_back(current);
+          current.clear();
+        }
+        string pp=c;
+        tokens.push_back(pp);
+      }
+      else if (c == '\'') {
 
         if (cc == '!') {
             cc = '\'';
@@ -62,6 +70,7 @@ int main() {
       else {
         current += c;
       }
+      lc=c;
     }
 
     if (!current.empty()) {
