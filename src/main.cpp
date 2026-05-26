@@ -218,6 +218,8 @@ int main() {
         break;
 
     line = input;
+    if (!line.empty())
+      add_history(line.c_str()); 
 
     free(input);
 
