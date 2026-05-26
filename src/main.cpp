@@ -18,16 +18,6 @@
 #include <readline/readline.h>
 #include <readline/history.h>
 #include <cstring>
-#include <termios.h>
-
-void setRawMode() {
-    struct termios term;
-    tcgetattr(STDIN_FILENO, &term);
-    term.c_lflag &= ~(ICANON | ECHO);
-    term.c_cc[VMIN] = 1;
-    term.c_cc[VTIME] = 0;
-    tcsetattr(STDIN_FILENO, TCSANOW, &term);
-}
 
 std::map<std::string,std::string> comp;
 int job_count = 0;
@@ -443,12 +433,29 @@ int main() {
 
     else if (command == "history" && pipeline.size()==1){
       if(tokens.size()>1){
-        std::string numm=tokens[1];
+        if(tokens[1] == "-r") {
+            // read from file and append to history
+            if(tokens.size() > 2) {
+                std::ifstream file(tokens[2]);
+                std::string cmd;
+                while(std::getline(file, cmd)) {
+                    if(!cmd.empty()) {
+                        his_count++;
+                        History h;
+                        h.number = his_count;
+                        h.command = cmd;
+                        history.push_back(h);
+                        add_history(cmd.c_str());
+                    }
+                }
+            }
+        }
+        else {std::string numm=tokens[1];
         int check=0;
         for(auto i:numm)check=check*10+(i-'0');
         for(int i=history.size()-check;i<history.size();i++){
           std::cout << history[i].number << "  " << history[i].command << "\n";
-        }
+        }}
       }
       else{
         for(int i=0;i<history.size();i++){
