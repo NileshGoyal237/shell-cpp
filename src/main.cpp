@@ -454,21 +454,27 @@ int main() {
           }
         }
         else{
-          std::string key,val;
-          key="";
-          val="";
-          bool equlto=false;
-          bool validity=true;
-          for(auto i:tokens[1]){
-            //if(i>'z' || (i<'a' && i>'Z') || i<'A')validity=false;
-            if(i=='=')equlto=true;
-            else if(equlto)val+=i;
-            else key+=i;
+          std::string key, val;
+          key = "";
+          val = "";
+          bool equlto = false;
+          for(auto i : tokens[1]){
+              if(i == '=') equlto = true;
+              else if(equlto) val += i;
+              else key += i;
           }
-          if((key[0]<='z' && key[0]>='a')  || (key[0]<='Z' && key[0]>='A') || key[0]=='_')decl[key]=val;
-          else{
-            std::cout <<"declare: `" << tokens[1] << "': not a valid identifier" << "\n";
+
+          // validate first char
+          bool valid = !key.empty() && (isalpha(key[0]) || key[0] == '_');
+
+          // validate rest of chars
+          for(int i = 1; i < key.size() && valid; i++){
+              if(!isalnum(key[i]) && key[i] != '_')
+                  valid = false;
           }
+
+          if(valid) decl[key] = val;
+          else std::cout << "declare: `" << tokens[1] << "': not a valid identifier\n";
         }
     }
     else if (command == "exit" && pipeline.size()==1) {
