@@ -85,14 +85,11 @@ int main() {
 
     if (command == "echo") {
 
-      for (int i = 1; i < tokens.size(); i++) {
-        std::cout << tokens[i];
+        for (int i = 1; i < tokens.size(); i++) {
+            std::cout << tokens[i];
+        }
 
-        if (i + 1 < tokens.size() && tokens[i+1]!=" ")
-          std::cout << " ";
-      }
-
-      std::cout << '\n';
+        std::cout << '\n';
     }
 
     else if (command == "exit") {
