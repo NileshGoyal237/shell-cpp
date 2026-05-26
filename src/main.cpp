@@ -88,6 +88,8 @@ int main() {
     
     bool stdout_redirect = false;
     bool stderr_redirect = false;
+    bool stdout_append = false;
+    bool stderr_append = false;
 
     std::string output_file;
     std::string error_file;
@@ -116,6 +118,26 @@ int main() {
             i++;
         }
 
+        else if (tokens[i] == ">>" || tokens[i]=="1>>") {
+            stdout_redirect=true;
+            stdout_append = true;
+
+            if (i + 1 < tokens.size())
+                output_file = tokens[i + 1];
+
+            i++;
+        }
+
+        else if (tokens[i] == "2>>") {
+            stderr_redirect=true;
+            stderr_append = true;
+
+            if (i + 1 < tokens.size())
+                error_file = tokens[i + 1];
+
+            i++;
+        }
+
         else {
             actual_tokens.push_back(tokens[i]);
         }
@@ -131,10 +153,15 @@ int main() {
         int saved_stderr = dup(STDERR_FILENO);
 
         if (stdout_redirect) {
+            int flags = O_WRONLY | O_CREAT;
 
+            if (stdout_append)
+                flags |= O_APPEND;
+            else
+                flags |= O_TRUNC;
             int fd = open(
                 output_file.c_str(),
-                O_WRONLY | O_CREAT | O_TRUNC,
+                flags ,
                 0644
             );
 
@@ -143,10 +170,16 @@ int main() {
         }
 
         if (stderr_redirect) {
+            
+          int flags = O_WRONLY | O_CREAT;
 
+            if (stderr_append)
+                flags |= O_APPEND;
+            else
+                flags |= O_TRUNC;
             int fd = open(
                 error_file.c_str(),
-                O_WRONLY | O_CREAT | O_TRUNC,
+                flags,
                 0644
             );
 
@@ -268,10 +301,15 @@ int main() {
       if (pid == 0) {
 
           if (stdout_redirect) {
+              int flags = O_WRONLY | O_CREAT;
 
+              if (stdout_append)
+                  flags |= O_APPEND;
+              else
+                  flags |= O_TRUNC;
               int fd = open(
                   output_file.c_str(),
-                  O_WRONLY | O_CREAT | O_TRUNC,
+                  flags,
                   0644
               );
 
@@ -281,10 +319,15 @@ int main() {
           }
 
           if (stderr_redirect) {
+              int flags = O_WRONLY | O_CREAT;
 
+              if (stderr_append)
+                  flags |= O_APPEND;
+              else
+                  flags |= O_TRUNC;
               int fd = open(
                   error_file.c_str(),
-                  O_WRONLY | O_CREAT | O_TRUNC,
+                  flags,
                   0644
               );
 
