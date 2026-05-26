@@ -193,10 +193,6 @@ int main() {
   
   rl_completion_append_character = ' ';
   while (true) {
-      for(int i=0;i<jobs.size();i++){
-        jobs[i].number=i+1;
-      }
-      job_count=jobs.size();
 
     char* input = readline("$ ");
 
@@ -581,14 +577,20 @@ int main() {
 
       else {
         if (background) {
-            job_count++;
+            std::set<int> used;
+            for (auto& j : jobs)
+                used.insert(j.number);
+
+            int next_num = 1;
+            while (used.count(next_num))
+                next_num++;
             std::string cmd = line;
             if(!cmd.empty() && cmd.back() == '&')
                 cmd.pop_back();
             if(!cmd.empty() && cmd.back() == ' ')
                 cmd.pop_back();
             Job j;
-            j.number = job_count;
+            j.number = next_num;
             j.pid = pid;
             j.command = cmd;  // original input line
             j.status = "Running";
