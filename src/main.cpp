@@ -595,7 +595,7 @@ int main() {
             j.command = cmd;  // original input line
             j.status = "Running";
             jobs.push_back(j);
-            std::cout << "[" << job_count << "] " << pid << "\n";
+            std::cout << "[" << next_num << "] " << pid << "\n";
             // don't waitpid — let it run in background
         } else{
           waitpid(pid, nullptr, 0);
