@@ -88,7 +88,7 @@ int main() {
       for (int i = 1; i < tokens.size(); i++) {
         std::cout << tokens[i];
 
-        if (i + 1 < tokens.size() && tokens[i]!=" ")
+        if (i + 1 < tokens.size() && tokens[i+1]!=" ")
           std::cout << " ";
       }
 
