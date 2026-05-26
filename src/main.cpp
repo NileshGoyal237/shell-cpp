@@ -182,6 +182,8 @@ char** command_completion(
             (candidates.size() + 1)
             * sizeof(char*)
         );
+    
+    matches[0] = nullptr;
 
     for (int i = 0; i < candidates.size(); i++) {
 
@@ -191,7 +193,7 @@ char** command_completion(
 
     matches[candidates.size()] = nullptr;
     rl_attempted_completion_over = 1;
-
+    rl_completion_append_character = '\0';
     return matches;
 }
 
