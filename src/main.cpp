@@ -93,6 +93,7 @@ int main() {
   std::cerr << std::unitbuf;
 
   std::string line;
+  std::map<std::string,std::string> comp;
   std::string command;
   rl_attempted_completion_function =
     command_completion;
@@ -178,7 +179,6 @@ int main() {
 
     std::string output_file;
     std::string error_file;
-    std::map<std::string,std::string> comp;
 
     std::vector<std::string> actual_tokens;
 
