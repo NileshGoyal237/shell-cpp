@@ -18,6 +18,16 @@
 #include <readline/readline.h>
 #include <readline/history.h>
 #include <cstring>
+#include <termios.h>
+
+void setRawMode() {
+    struct termios term;
+    tcgetattr(STDIN_FILENO, &term);
+    term.c_lflag &= ~(ICANON | ECHO);
+    term.c_cc[VMIN] = 1;
+    term.c_cc[VTIME] = 0;
+    tcsetattr(STDIN_FILENO, TCSANOW, &term);
+}
 
 std::map<std::string,std::string> comp;
 int job_count = 0;
