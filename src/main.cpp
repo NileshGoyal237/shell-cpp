@@ -70,7 +70,7 @@ int main() {
       else{
         current += c;
       }
-      lc=c;
+      //lc=c;
     }
 
     if (!current.empty()) {
@@ -85,7 +85,11 @@ int main() {
     if (command == "echo") {
 
         for (int i = 1; i < tokens.size(); i++) {
+
             std::cout << tokens[i];
+
+            if (i + 1 < tokens.size())
+                std::cout << " ";
         }
 
         std::cout << '\n';
