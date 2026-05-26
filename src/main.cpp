@@ -5,6 +5,9 @@
 #include <filesystem>
 #include <regex>
 #include <vector>
+#include <fcntl.h>
+#include <sys/stat.h>
+#include <sstream>
 
 int main() {
   std::cout << std::unitbuf;
@@ -79,10 +82,46 @@ int main() {
 
     if (tokens.empty())
       continue;
+    
+    bool redirect = false;
+    std::string output_file;
+
+    std::vector<std::string> actual_tokens;
+
+    for (int i = 0; i < tokens.size(); i++) {
+
+        if (tokens[i] == ">" || tokens[i] == "1>") {
+
+            redirect = true;
+
+            if (i + 1 < tokens.size())
+                output_file = tokens[i + 1];
+
+            break;
+        }
+
+        actual_tokens.push_back(tokens[i]);
+    }
+
+    tokens = actual_tokens;
 
     command = tokens[0];
 
     if (command == "echo") {
+
+        int saved_stdout = dup(STDOUT_FILENO);
+
+        if (redirect) {
+
+            int fd = open(
+                output_file.c_str(),
+                O_WRONLY | O_CREAT | O_TRUNC,
+                0644
+            );
+
+            dup2(fd, STDOUT_FILENO);
+            close(fd);
+        }
 
         for (int i = 1; i < tokens.size(); i++) {
 
@@ -93,6 +132,14 @@ int main() {
         }
 
         std::cout << '\n';
+
+        std::cout.flush();
+
+        if (redirect) {
+
+            dup2(saved_stdout, STDOUT_FILENO);
+            close(saved_stdout);
+        }
     }
 
     else if (command == "exit") {
@@ -187,6 +234,18 @@ int main() {
       pid_t pid = fork();
 
       if (pid == 0) {
+        if (redirect) {
+
+            int fd = open(
+                output_file.c_str(),
+                O_WRONLY | O_CREAT | O_TRUNC,
+                0644
+            );
+
+            dup2(fd, STDOUT_FILENO);
+
+            close(fd);
+        }
 
         execvp(command.c_str(), c_args.data());
 
