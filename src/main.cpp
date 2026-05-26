@@ -578,10 +578,15 @@ int main() {
       else {
         if (background) {
             job_count++;
+            std::string cmd = line;
+            if(!cmd.empty() && cmd.back() == '&')
+                cmd.pop_back();
+            if(!cmd.empty() && cmd.back() == ' ')
+                cmd.pop_back();
             Job j;
             j.number = job_count;
             j.pid = pid;
-            j.command = line;  // original input line
+            j.command = cmd;  // original input line
             j.status = "Running";
             jobs.push_back(j);
             std::cout << "[" << job_count << "] " << pid << "\n";
