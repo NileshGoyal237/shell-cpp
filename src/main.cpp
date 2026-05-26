@@ -425,6 +425,9 @@ int main() {
         std::cout << "cd: " << p << ": No such file or directory\n";
       }
     }
+    else if(command=="jobs"){
+      char a='1';
+    }
 
     else if (command == "type") {
 
