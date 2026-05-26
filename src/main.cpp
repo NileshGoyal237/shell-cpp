@@ -11,6 +11,43 @@
 #include <fcntl.h>
 #include <sys/stat.h>
 #include <sstream>
+#include <readline/readline.h>
+#include <readline/history.h>
+#include <cstring>
+
+char* command_generator(const char* text, int state) {
+
+    static int index;
+
+    static std::string commands[] = {
+        "echo",
+        "exit"
+    };
+
+    if (state == 0)
+        index = 0;
+
+    while (index < 2) {
+
+        std::string cmd = commands[index++];
+
+        if (cmd.substr(0, strlen(text)) == text)
+            return strdup((cmd + " ").c_str());
+    }
+
+    return nullptr;
+}
+
+char** command_completion(
+    const char* text,
+    int start,
+    int end
+) {
+    return rl_completion_matches(
+        text,
+        command_generator
+    );
+}
 
 int main() {
   std::cout << std::unitbuf;
@@ -18,11 +55,18 @@ int main() {
 
   std::string line;
   std::string command;
-
+  rl_attempted_completion_function =
+    command_completion;
   while (true) {
 
-    std::cout << "$ ";
-    std::getline(std::cin, line);
+    char* input = readline("$ ");
+
+    if (!input)
+        break;
+
+    line = input;
+
+    free(input);
 
     std::vector<std::string> tokens;
 
