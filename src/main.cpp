@@ -431,7 +431,7 @@ int main() {
       bool found = false;
 
       std::string builtin[7] = {
-        "echo", "exit", "type", "pwd", "cd" ,"complete"."jobs"
+        "echo", "exit", "type", "pwd", "cd" ,"complete","jobs"
       };
 
       if (tokens.size() > 1) {
