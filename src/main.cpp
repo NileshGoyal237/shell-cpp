@@ -21,6 +21,7 @@
 #include <cstring>
 
 std::map<std::string,std::string> comp;
+std::map<std::string,std::string> decl;
 int job_count = 0;
 int his_count=0;
 int last_written=0;
@@ -443,7 +444,28 @@ int main() {
         close(saved_stdout);
         close(saved_stderr);
     }
-
+    else if (command == "declare" && pipeline.size()==1){
+        if(tokens[1]=="-p"){
+          if(decl.find(tokens[2])==decl.end()){
+            std::cout << "declare: " << tokens[2] << ": not found" << "\n";
+          }
+          else{
+            std::cout << "declare -- " << tokens[2] << "=" << '\"' << decl[tokens[2]] << '\"' << "\n";
+          }
+        }
+        else{
+          std::string key,val;
+          key="";
+          val="";
+          bool equlto=false;
+          for(auto i:tokens[2]){
+            if(i=='=')equlto=true;
+            else if(equlto)val+=i;
+            else key+=i;
+          }
+          decl[key]=val;
+        }
+    }
     else if (command == "exit" && pipeline.size()==1) {
       if(histfile){std::ofstream file(histfile);
       for(auto& h : history) {
