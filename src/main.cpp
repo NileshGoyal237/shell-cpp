@@ -193,10 +193,10 @@ int main() {
   
   rl_completion_append_character = ' ';
   while (true) {
-      // for(int i=0;i<jobs.size();i++){
-      //   jobs[i].number=i+1;
-      // }
-      // job_count=jobs.size();
+      for(int i=0;i<jobs.size();i++){
+        jobs[i].number=i+1;
+      }
+      job_count=jobs.size();
 
     char* input = readline("$ ");
 
