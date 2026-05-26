@@ -451,13 +451,9 @@ int main() {
           }
       }
       for(int i=0;i<jobs.size();i++){
-        std::string tps(24,' ');
-        for(int j=0;j<jobs[i].status.size();j++){
-          tps[j]=jobs[i].status[j];
-        }
-        if(i==jobs.size()-1)std::cout << '[' << jobs[i].number << "]+  " << tps << jobs[i].command << "\n"; 
-        else if(i==jobs.size()-2)std::cout << '[' << jobs[i].number << "]-  " << tps << jobs[i].command << "\n";
-        else std::cout << '[' << jobs[i].number << "]   " << tps << jobs[i].command << "\n";
+        if(i==jobs.size()-1)std::cout << '[' << jobs[i].number << "]+  " << jobs[i].status << "                 " << jobs[i].command << "\n"; 
+        else if(i==jobs.size()-2)std::cout << '[' << jobs[i].number << "]-  " << jobs[i].status << "                 " << jobs[i].command << "\n";
+        else std::cout << '[' << jobs[i].number << "]   " << jobs[i].status << "                 " << jobs[i].command << "\n";
       }
       jobs.erase(
           std::remove_if(jobs.begin(), jobs.end(), 
