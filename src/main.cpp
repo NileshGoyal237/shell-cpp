@@ -99,9 +99,32 @@ char** command_completion(
     if (comp.find(cmd) == comp.end())
         return nullptr;
 
-    std::string script = comp[cmd];
+    std::string current_word = text;
 
-    FILE* fp = popen(script.c_str(), "r");
+    std::stringstream line_ss(line);
+
+    std::vector<std::string> words;
+
+    std::string temp;
+
+    while (line_ss >> temp)
+        words.push_back(temp);
+
+    std::string previous_word = "";
+
+    if (words.size() >= 2)
+        previous_word = words[words.size() - 2];
+
+    std::string script_command =
+        comp[cmd]
+        + " "
+        + cmd
+        + " "
+        + current_word
+        + " "
+        + "\"" + previous_word + "\"";
+
+    FILE* fp = popen(script_command.c_str(), "r");
 
     if (!fp)
         return nullptr;
