@@ -30,7 +30,7 @@ int main() {
           tokens.push_back(current);
           current.clear();
         }
-        string pp=c;
+        std::string pp=c;
         tokens.push_back(pp);
       }
       else if (c == '\'') {
