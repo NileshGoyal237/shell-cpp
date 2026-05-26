@@ -23,6 +23,7 @@
 std::map<std::string,std::string> comp;
 int job_count = 0;
 int his_count=0;
+int last_written=0;
 
 struct Job {
     int number;
@@ -457,14 +458,16 @@ int main() {
                 for(auto& h : history) {
                     file << h.command << "\n";
                 }
+                last_written=history.size();
             }
         }
         else if(tokens[1] == "-a") {
             if(tokens.size() > 2) {
                 std::ofstream file(tokens[2], std::ios::app);
-                for(auto& h : history) {
-                    file << h.command << "\n";
+                for(int i = last_written; i < history.size(); i++) {
+                    file << history[i].command << "\n";
                 }
+                last_written=history.size();
             }
         }
         else {std::string numm=tokens[1];
