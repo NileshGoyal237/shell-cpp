@@ -123,7 +123,27 @@ char** command_completion(
         + current_word
         + " "
         + "\"" + previous_word + "\"";
+    
+    std::string comp_line = line;
 
+    std::string comp_point =
+    std::to_string(line.length());
+
+    char* old_line = getenv("COMP_LINE");
+
+    char* old_point = getenv("COMP_POINT");
+
+    setenv(
+        "COMP_LINE",
+        comp_line.c_str(),
+        1
+    );
+
+    setenv(
+        "COMP_POINT",
+        comp_point.c_str(),
+        1
+    );
     FILE* fp = popen(script_command.c_str(), "r");
 
     if (!fp)
@@ -139,6 +159,15 @@ char** command_completion(
     }
 
     pclose(fp);
+    if (old_line)
+        setenv("COMP_LINE", old_line, 1);
+    else
+        unsetenv("COMP_LINE");
+
+    if (old_point)
+        setenv("COMP_POINT", old_point, 1);
+    else
+        unsetenv("COMP_POINT");
 
     std::string candidate = buffer;
 
