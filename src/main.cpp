@@ -72,7 +72,6 @@ char* command_generator(const char* text, int state) {
 
     return nullptr;
 }
-
 char** command_completion(
     const char* text,
     int start,
@@ -80,120 +79,80 @@ char** command_completion(
 ) {
 
     if (start == 0) {
-
         rl_completion_append_character = ' ';
-
-        return rl_completion_matches(
-            text,
-            command_generator
-        );
+        return rl_completion_matches(text, command_generator);
     }
 
     std::string line = rl_line_buffer;
-
     std::stringstream ss(line);
-
     std::string cmd;
-
     ss >> cmd;
 
     if (comp.find(cmd) == comp.end())
         return nullptr;
 
     std::string current_word = text;
-
     std::stringstream line_ss(line);
-
     std::vector<std::string> words;
-
     std::string temp;
-
     while (line_ss >> temp)
         words.push_back(temp);
 
     std::string previous_word = "";
-
     if (words.size() >= 2)
         previous_word = words[words.size() - 2];
 
     std::string script_command =
-        comp[cmd]
-        + " "
-        + cmd
-        + " "
-        + current_word
-        + " "
-        + "\"" + previous_word + "\"";
-    
+        comp[cmd] + " " + cmd + " " + current_word + " " + "\"" + previous_word + "\"";
+
     std::string comp_line = rl_line_buffer;
+    std::string comp_point = std::to_string(rl_point);
 
-    std::string comp_point =
-    std::to_string(rl_point);
+    setenv("COMP_LINE", comp_line.c_str(), 1);
+    setenv("COMP_POINT", comp_point.c_str(), 1);
 
-    char* old_line = getenv("COMP_LINE");
-
-    char* old_point = getenv("COMP_POINT");
-
-    setenv(
-        "COMP_LINE",
-        comp_line.c_str(),
-        1
-    );
-
-    setenv(
-        "COMP_POINT",
-        comp_point.c_str(),
-        1
-    );
     FILE* fp = popen(script_command.c_str(), "r");
-
     if (!fp)
         return nullptr;
 
     std::vector<std::string> candidates;
-
     char buffer[1024];
-
     while (fgets(buffer, sizeof(buffer), fp)) {
-
         std::string candidate = buffer;
-
-        if (!candidate.empty() &&
-            candidate.back() == '\n')
+        if (!candidate.empty() && candidate.back() == '\n')
             candidate.pop_back();
-
-        candidates.push_back(candidate);
+        if (!candidate.empty())
+            candidates.push_back(candidate);
     }
-
     pclose(fp);
 
     if (candidates.empty())
         return nullptr;
 
-    std::sort(
-        candidates.begin(),
-        candidates.end()
-    );
+    std::sort(candidates.begin(), candidates.end());
 
-    rl_completion_append_character = ' ';
+    rl_attempted_completion_over = 1;
 
-    char** matches =
-        (char**)malloc(
-            (candidates.size() + 1)
-            * sizeof(char*)
-        );
-    
-    matches[0] = nullptr;
-
-    for (int i = 0; i < candidates.size(); i++) {
-
-        matches[i] =
-            strdup(candidates[i].c_str());
+    if (candidates.size() == 1) {
+        rl_completion_append_character = ' ';
+    } else {
+        rl_completion_append_character = '\0';
     }
 
-    matches[candidates.size()] = nullptr;
-    rl_attempted_completion_over = 1;
-    rl_completion_append_character = '\0';
+    // matches[0] = common prefix (use empty string or first candidate)
+    // matches[1..n] = actual candidates
+    char** matches = (char**)malloc((candidates.size() + 2) * sizeof(char*));
+
+    // matches[0] is the common prefix readline uses — set to empty string
+    // so readline doesn't insert anything automatically
+    matches[0] = strdup("");
+
+    for (int i = 0; i < (int)candidates.size(); i++) {
+        matches[i + 1] = strdup(candidates[i].c_str());
+    }
+
+    matches[candidates.size() + 1] = nullptr;
+
     return matches;
 }
 
