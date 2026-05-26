@@ -135,22 +135,23 @@ char** command_completion(
 
     if (candidates.size() == 1) {
         rl_completion_append_character = ' ';
-    } else {
-        rl_completion_append_character = '\0';
+        
+        char** matches = (char**)malloc(3 * sizeof(char*));
+        matches[0] = strdup(candidates[0].c_str());  // <-- the completed word, not ""
+        matches[1] = strdup(candidates[0].c_str());
+        matches[2] = nullptr;
+        return matches;
     }
 
-    // matches[0] = common prefix (use empty string or first candidate)
-    // matches[1..n] = actual candidates
-    char** matches = (char**)malloc((candidates.size() + 2) * sizeof(char*));
+    // Multiple candidates
+    rl_completion_append_character = '\0';
 
-    // matches[0] is the common prefix readline uses — set to empty string
-    // so readline doesn't insert anything automatically
-    matches[0] = strdup("");
+    char** matches = (char**)malloc((candidates.size() + 2) * sizeof(char*));
+    matches[0] = strdup("");  // empty prefix — just show the list
 
     for (int i = 0; i < (int)candidates.size(); i++) {
         matches[i + 1] = strdup(candidates[i].c_str());
     }
-
     matches[candidates.size() + 1] = nullptr;
 
     return matches;
