@@ -460,12 +460,12 @@ int main() {
           bool equlto=false;
           bool validity=true;
           for(auto i:tokens[1]){
-            if(i>'z' || (i<'a' && i>'Z') || i<'A')validity=false;
+            //if(i>'z' || (i<'a' && i>'Z') || i<'A')validity=false;
             if(i=='=')equlto=true;
             else if(equlto)val+=i;
             else key+=i;
           }
-          if(validity)decl[key]=val;
+          if((key[0]<='z' && key[0]>='a')  || (key[0]<='Z' && key[0]>='A') || key[0]=='_')decl[key]=val;
           else{
             std::cout <<"declare: `" << tokens[1] << "': not a valid identifier" << "\n";
           }
