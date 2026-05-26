@@ -21,18 +21,17 @@ int main() {
     std::vector<std::string> tokens;
 
     std::string current;
-    bool in_single_quote = false;
+    bool escape = false;
     char cc='!';
     char lc='!';
     for (char c : line) {
-      if(lc=='\\'){
-         if (!current.empty()) {
-          tokens.push_back(current);
-          current.clear();
-        }
-        std::string pp="";
-        pp+=c;
-        tokens.push_back(pp);
+      if (escape) {
+          current += c;
+          escape = false;
+      }
+
+      else if (c == '\\') {
+          escape = true;
       }
       else if (c == '\'') {
 
