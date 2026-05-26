@@ -22,14 +22,15 @@ int main() {
 
     std::string current;
     bool in_single_quote = false;
-
+    std::char cc='!';
     for (char c : line) {
 
-      if (c == '\'' || c=='\"') {
-        in_single_quote = !in_single_quote;
+      if ((c == '\'' || c=='\"')) {
+        if(c==cc)cc='!';
+        else if(cc=='!')cc=c;
       }
 
-      else if (std::isspace(c) && !in_single_quote) {
+      else if (std::isspace(c) && cc=='!') {
 
         if (!current.empty()) {
           tokens.push_back(current);
