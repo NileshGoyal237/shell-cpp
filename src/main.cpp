@@ -21,6 +21,7 @@
 
 std::map<std::string,std::string> comp;
 int job_count = 0;
+int his_count=0;
 
 struct Job {
     int number;
@@ -28,8 +29,13 @@ struct Job {
     std::string command;
     std::string status;
 };
+struct History {
+    int number;
+    std::string command;
+};
 
 std::vector<Job> jobs;
+std::vector<History> history;
 
 char* command_generator(const char* text, int state) {
 
@@ -288,6 +294,12 @@ int main() {
     }
     if (!current_cmd.empty())
         pipeline.push_back(current_cmd);
+
+    his_count++;
+    struct<History> hiss;
+    hiss.number=his_count;
+    hiss.command=line;
+    history.push_back(hiss);
     
     bool stdout_redirect = false;
     bool stderr_redirect = false;
@@ -413,6 +425,12 @@ int main() {
     else if (command == "exit" && pipeline.size()==1) {
 
       break;
+    }
+
+    else if (command == "history" && pipeline.size()==1){
+      for(int i=0;i<history.size();i++){
+        std::cout << history[i].number << "  " << history[i].command << "\n";
+      }
     }
     else if(command=="complete" && pipeline.size()==1){
       if (tokens.size() >= 3 ) {
