@@ -271,6 +271,23 @@ int main() {
         background = true;
         tokens.pop_back();
     }
+
+    // Split tokens into commands at |
+    std::vector<std::vector<std::string>> pipeline;
+    std::vector<std::string> current_cmd;
+
+    for (int i = 0; i < tokens.size(); i++) {
+        if (tokens[i] == "|") {
+            if (!current_cmd.empty()) {
+                pipeline.push_back(current_cmd);
+                current_cmd.clear();
+            }
+        } else {
+            current_cmd.push_back(tokens[i]);
+        }
+    }
+    if (!current_cmd.empty())
+        pipeline.push_back(current_cmd);
     
     bool stdout_redirect = false;
     bool stderr_redirect = false;
@@ -519,8 +536,80 @@ int main() {
     }
 
     else {
+      if (pipeline.size() > 1) {
+          int n = pipeline.size();
+          // Create all pipes
+          // pipes[i] connects command i to command i+1
+          std::vector<std::array<int, 2>> pipes(n - 1);
+          for (int i = 0; i < n - 1; i++)
+              pipe(pipes[i].data());
 
-      std::vector<char*> c_args;
+          std::vector<pid_t> pids;
+
+          for (int i = 0; i < n; i++) {
+              pid_t pid = fork();
+
+              if (pid == 0) {
+                  // If not first command, read from previous pipe
+                  if (i > 0) {
+                      dup2(pipes[i-1][0], STDIN_FILENO);
+                  }
+                  // If not last command, write to next pipe
+                  if (i < n - 1) {
+                      dup2(pipes[i][1], STDOUT_FILENO);
+                  }
+
+                  // Close all pipe fds in child
+                  for (int j = 0; j < n - 1; j++) {
+                      close(pipes[j][0]);
+                      close(pipes[j][1]);
+                  }
+
+                  // Handle redirections only for last command
+                  if (i == n - 1) {
+                      if (stdout_redirect) {
+                          int flags = O_WRONLY | O_CREAT;
+                          if (stdout_append) flags |= O_APPEND;
+                          else flags |= O_TRUNC;
+                          int fd = open(output_file.c_str(), flags, 0644);
+                          dup2(fd, STDOUT_FILENO);
+                          close(fd);
+                      }
+                      if (stderr_redirect) {
+                          int flags = O_WRONLY | O_CREAT;
+                          if (stderr_append) flags |= O_APPEND;
+                          else flags |= O_TRUNC;
+                          int fd = open(error_file.c_str(), flags, 0644);
+                          dup2(fd, STDERR_FILENO);
+                          close(fd);
+                      }
+                  }
+
+                  std::vector<char*> c_args;
+                  for (auto& s : pipeline[i])
+                      c_args.push_back(&s[0]);
+                  c_args.push_back(nullptr);
+
+                  execvp(pipeline[i][0].c_str(), c_args.data());
+                  std::cerr << pipeline[i][0] << ": command not found\n";
+                  exit(1);
+              }
+
+              pids.push_back(pid);
+          }
+
+          // Parent closes all pipe fds
+          for (int i = 0; i < n - 1; i++) {
+              close(pipes[i][0]);
+              close(pipes[i][1]);
+          }
+
+          // Wait for all children
+          for (pid_t p : pids)
+              waitpid(p, nullptr, 0);
+      }
+
+      else{std::vector<char*> c_args;
 
       for (auto& s : tokens)
         c_args.push_back(&s[0]);
@@ -600,7 +689,7 @@ int main() {
         } else{
           waitpid(pid, nullptr, 0);
         }
-      }
+      }}
     }
     if(command!="jobs"){  
       for(int i = 0; i < jobs.size(); i++){
