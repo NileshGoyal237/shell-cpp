@@ -451,6 +451,14 @@ int main() {
                 }
             }
         }
+        else if(tokens[1] == "-w") {
+            if(tokens.size() > 2) {
+                std::ofstream file(tokens[2], std::ios::trunc);
+                for(auto& h : history) {
+                    file << h.command << "\n";
+                }
+            }
+        }
         else {std::string numm=tokens[1];
         int check=0;
         for(auto i:numm)check=check*10+(i-'0');
