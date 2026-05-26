@@ -458,12 +458,17 @@ int main() {
           key="";
           val="";
           bool equlto=false;
+          bool validity=true;
           for(auto i:tokens[1]){
+            if(i>'z' || (i<'a' &&& i>'Z') || i<'A')validity=false;
             if(i=='=')equlto=true;
             else if(equlto)val+=i;
             else key+=i;
           }
-          decl[key]=val;
+          if(validity)decl[key]=val;
+          else{
+            std::cout <<"declare: `" << tokens[1] << "': not a valid identifier" << "\n";
+          }
         }
     }
     else if (command == "exit" && pipeline.size()==1) {
