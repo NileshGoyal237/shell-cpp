@@ -68,7 +68,7 @@ int main() {
         }
       }
 
-      else {
+      else if(c!='\\'){
         current += c;
       }
       lc=c;
