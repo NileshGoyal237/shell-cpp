@@ -8,6 +8,7 @@
 #include <fcntl.h>
 #include <sys/stat.h>
 #include <dirent.h>
+#include <map>
 #include <set>
 #include <sstream>
 #include <fcntl.h>
@@ -16,6 +17,8 @@
 #include <readline/readline.h>
 #include <readline/history.h>
 #include <cstring>
+
+std::map<std::string,std::string> comp;
 
 char* command_generator(const char* text, int state) {
 
@@ -85,7 +88,50 @@ char** command_completion(
         );
     }
 
-    return nullptr;
+    std::string line = rl_line_buffer;
+
+    std::stringstream ss(line);
+
+    std::string cmd;
+
+    ss >> cmd;
+
+    if (comp.find(cmd) == comp.end())
+        return nullptr;
+
+    std::string script = comp[cmd];
+
+    FILE* fp = popen(script.c_str(), "r");
+
+    if (!fp)
+        return nullptr;
+
+    char buffer[1024];
+
+    if (fgets(buffer, sizeof(buffer), fp) == nullptr) {
+
+        pclose(fp);
+
+        return nullptr;
+    }
+
+    pclose(fp);
+
+    std::string candidate = buffer;
+
+    if (!candidate.empty() &&
+        candidate.back() == '\n')
+        candidate.pop_back();
+
+    rl_completion_append_character = ' ';
+
+    char** matches =
+        (char**)malloc(2 * sizeof(char*));
+
+    matches[0] = strdup(candidate.c_str());
+    matches[1] = nullptr;
+
+    return matches;
 }
 
 int main() {
@@ -93,7 +139,6 @@ int main() {
   std::cerr << std::unitbuf;
 
   std::string line;
-  std::map<std::string,std::string> comp;
   std::string command;
   rl_attempted_completion_function =
     command_completion;
