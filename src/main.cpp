@@ -438,7 +438,7 @@ int main() {
 
         std::string command_to_know = tokens[1];
 
-        for (int i = 0; i < builtin.size(); i++) {
+        for (int i = 0; i < 7; i++) {
 
           if (builtin[i] == command_to_know) {
 
