@@ -22,9 +22,28 @@ int main() {
     ss >> command;
 
     if (command == "echo") {
-      std::string word;
-      while (ss >> word)
-        std::cout << word << " ";
+      std::vector<std::string> tokens;
+      std::string current;
+      bool in_single_quote = false;
+      for (char c : line) {
+        if (c == '\'') {
+          in_single_quote = !in_single_quote;
+        }
+        else if (std::isspace(c) && !in_single_quote) {
+          if (!current.empty()) {
+            tokens.push_back(current);
+            current.clear();
+          }
+        }
+        else {
+          current += c;
+        }
+      }
+      if (!current.empty()) {
+        tokens.push_back(current);
+      }
+      while (auto i:tokens)
+        std::cout << i << " ";
       std::cout << std::endl;
 
     } else if (command == "exit") {
