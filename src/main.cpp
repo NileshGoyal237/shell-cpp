@@ -600,7 +600,7 @@ int main() {
         }
       }
     }
-    if(command!=jobs){  
+    if(command!="jobs"){  
       for(int i = 0; i < jobs.size(); i++){
           int status;
           pid_t result = waitpid(jobs[i].pid, &status, WNOHANG);
