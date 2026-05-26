@@ -178,6 +178,7 @@ int main() {
 
     std::string output_file;
     std::string error_file;
+    std::map<std::string,std::string> comp;
 
     std::vector<std::string> actual_tokens;
 
@@ -297,12 +298,27 @@ int main() {
       break;
     }
     else if(command=="complete"){
-      if (tokens.size() >= 3 && tokens[1] == "-p") {
+      if (tokens.size() >= 3 ) {
+          if(tokens[1] == "-C"){
+            comp[tokens[3]]=tokens[2];
+          }
+          else if(tokens[1]=="-p"){
+            if(comp.find(tokens[2])==comp.end()){
+              std::cout
+                << "complete: "
+                << tokens[2]
+                << ": no completion specification\n";
+            }
+            else{
+              std::cout
+                << "complete -C '"
+                << comp[tokens[2]]
+                << "' "
+                << tokens[2]
+                << '\n';
 
-          std::cout
-              << "complete: "
-              << tokens[2]
-              << ": no completion specification\n";
+            }
+          }
       }
     }
     else if (command == "pwd") {
