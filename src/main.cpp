@@ -42,7 +42,7 @@ int main() {
       if (!current.empty()) {
         tokens.push_back(current);
       }
-      while (std::auto i:tokens)
+      for(std::auto i:tokens)
         std::cout << i << " ";
       std::cout << std::endl;
 
