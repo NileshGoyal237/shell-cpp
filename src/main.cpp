@@ -538,8 +538,6 @@ int main() {
     else {
       if (pipeline.size() > 1) {
           int n = pipeline.size();
-          // Create all pipes
-          // pipes[i] connects command i to command i+1
           std::vector<std::array<int, 2>> pipes(n - 1);
           for (int i = 0; i < n - 1; i++)
               pipe(pipes[i].data());
@@ -550,22 +548,19 @@ int main() {
               pid_t pid = fork();
 
               if (pid == 0) {
-                  // If not first command, read from previous pipe
-                  if (i > 0) {
+                  // Set up pipe redirections
+                  if (i > 0)
                       dup2(pipes[i-1][0], STDIN_FILENO);
-                  }
-                  // If not last command, write to next pipe
-                  if (i < n - 1) {
+                  if (i < n - 1)
                       dup2(pipes[i][1], STDOUT_FILENO);
-                  }
 
-                  // Close all pipe fds in child
+                  // Close all pipe fds
                   for (int j = 0; j < n - 1; j++) {
                       close(pipes[j][0]);
                       close(pipes[j][1]);
                   }
 
-                  // Handle redirections only for last command
+                  // Handle file redirections only for last command
                   if (i == n - 1) {
                       if (stdout_redirect) {
                           int flags = O_WRONLY | O_CREAT;
@@ -585,20 +580,68 @@ int main() {
                       }
                   }
 
+                  std::string cmd = pipeline[i][0];
+
+                  // Handle builtins
+                  if (cmd == "echo") {
+                      for (int j = 1; j < (int)pipeline[i].size(); j++) {
+                          std::cout << pipeline[i][j];
+                          if (j + 1 < (int)pipeline[i].size())
+                              std::cout << " ";
+                      }
+                      std::cout << "\n";
+                      exit(0);
+                  }
+                  else if (cmd == "pwd") {
+                      std::cout << std::filesystem::current_path().string() << "\n";
+                      exit(0);
+                  }
+                  else if (cmd == "type") {
+                      if (pipeline[i].size() > 1) {
+                          std::string command_to_know = pipeline[i][1];
+                          std::string builtins[] = {"echo", "exit", "type", "pwd", "cd", "complete", "jobs"};
+                          bool found = false;
+                          for (auto& b : builtins) {
+                              if (b == command_to_know) {
+                                  std::cout << command_to_know << " is a shell builtin\n";
+                                  found = true;
+                                  break;
+                              }
+                          }
+                          if (!found) {
+                              std::string path_env = std::getenv("PATH");
+                              std::stringstream ss_path(path_env);
+                              std::string p;
+                              while (std::getline(ss_path, p, ':')) {
+                                  std::string full_path = p + '/' + command_to_know;
+                                  if (access(full_path.c_str(), X_OK) == 0) {
+                                      std::cout << command_to_know << " is " << full_path << "\n";
+                                      found = true;
+                                      break;
+                                  }
+                              }
+                          }
+                          if (!found)
+                              std::cout << command_to_know << ": not found\n";
+                      }
+                      exit(0);
+                  }
+
+                  // Not a builtin — execvp
                   std::vector<char*> c_args;
                   for (auto& s : pipeline[i])
                       c_args.push_back(&s[0]);
                   c_args.push_back(nullptr);
 
-                  execvp(pipeline[i][0].c_str(), c_args.data());
-                  std::cerr << pipeline[i][0] << ": command not found\n";
+                  execvp(cmd.c_str(), c_args.data());
+                  std::cerr << cmd << ": command not found\n";
                   exit(1);
               }
 
               pids.push_back(pid);
           }
 
-          // Parent closes all pipe fds
+          // Parent closes all pipes
           for (int i = 0; i < n - 1; i++) {
               close(pipes[i][0]);
               close(pipes[i][1]);
