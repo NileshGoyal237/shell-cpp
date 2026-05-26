@@ -402,7 +402,7 @@ int main() {
                 if(decl.find(varname) != decl.end())
                     expanded += decl[varname];
                 else
-                    expanded += "${" + varname + "}";
+                    expanded += "";
             } else {
                 expanded += tok[i++];
             }
