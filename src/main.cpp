@@ -125,10 +125,10 @@ char** command_completion(
         + " "
         + "\"" + previous_word + "\"";
     
-    std::string comp_line = line;
+    std::string comp_line = rl_line_buffer;
 
     std::string comp_point =
-    std::to_string(line.length());
+    std::to_string(rl_point);
 
     char* old_line = getenv("COMP_LINE");
 
