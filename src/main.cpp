@@ -1,6 +1,4 @@
 #include <iostream>
-#include <ranges>
-#include <sstream>
 #include <string>
 #include <unistd.h>
 #include <sys/wait.h>
@@ -11,98 +9,145 @@
 int main() {
   std::cout << std::unitbuf;
   std::cerr << std::unitbuf;
+
   std::string line;
   std::string command;
 
   while (true) {
+
     std::cout << "$ ";
     std::getline(std::cin, line);
 
-    std::stringstream ss(line);
-    ss >> command;
+    std::vector<std::string> tokens;
+
+    std::string current;
+    bool in_single_quote = false;
+
+    for (char c : line) {
+
+      if (c == '\'') {
+        in_single_quote = !in_single_quote;
+      }
+
+      else if (std::isspace(c) && !in_single_quote) {
+
+        if (!current.empty()) {
+          tokens.push_back(current);
+          current.clear();
+        }
+      }
+
+      else {
+        current += c;
+      }
+    }
+
+    if (!current.empty()) {
+      tokens.push_back(current);
+    }
+
+    if (tokens.empty())
+      continue;
+
+    command = tokens[0];
 
     if (command == "echo") {
-      std::vector<std::string> tokens;
-      std::string current;
-      bool in_single_quote = false;
-      for (char c : line) {
-        if (c == '\'') {
-          in_single_quote = !in_single_quote;
-        }
-        else if (std::isspace(c) && !in_single_quote) {
-          if (!current.empty()) {
-            tokens.push_back(current);
-            current.clear();
-          }
-        }
-        else {
-          current += c;
-        }
-      }
-      if (!current.empty()) {
-        tokens.push_back(current);
-      }
-      for (int i = 1; i < tokens.size(); i++)
-        std::cout << tokens[i] << " ";
-      std::cout << std::endl;
 
-    } else if (command == "exit") {
+      for (int i = 1; i < tokens.size(); i++) {
+        std::cout << tokens[i];
+
+        if (i + 1 < tokens.size())
+          std::cout << " ";
+      }
+
+      std::cout << '\n';
+    }
+
+    else if (command == "exit") {
 
       break;
+    }
 
-    }else if(command=="pwd"){
+    else if (command == "pwd") {
+
       std::cout << std::filesystem::current_path().string() << '\n';
-    }else if (command == "cd") {
-      std::string p = line.substr(3);
+    }
+
+    else if (command == "cd") {
+
+      std::string p;
+
+      if (tokens.size() > 1)
+        p = tokens[1];
+
       p = std::regex_replace(p, std::regex("~"), std::getenv("HOME"));
+
       if (chdir(p.c_str()) != 0) {
         std::cout << "cd: " << p << ": No such file or directory\n";
       }
-    } else if (command == "type") {
+    }
+
+    else if (command == "type") {
 
       bool found = false;
-      std::string builtin[5] = {"echo", "exit", "type","pwd","cd"};
-      std::string command_to_know;
-      ss >> command_to_know;
 
-      for (int i = 0; i < 5; i++) {
-        if (builtin[i] == command_to_know) {
-          std::cout << command_to_know << " is a shell builtin\n";
-          found = true;
-        }
-      }
+      std::string builtin[5] = {
+        "echo", "exit", "type", "pwd", "cd"
+      };
 
-      if (!found) {
-        std::string path_env = std::getenv("PATH");
-        std::stringstream ss_path(path_env);
-        std::string path;
+      if (tokens.size() > 1) {
 
-        while (std::getline(ss_path, path, ':')) {
-          std::string full_path = path + '/' + command_to_know;
+        std::string command_to_know = tokens[1];
 
-          if (access(full_path.c_str(), X_OK) == 0) {
-            std::cout << command_to_know << " is " << full_path << std::endl;
+        for (int i = 0; i < 5; i++) {
+
+          if (builtin[i] == command_to_know) {
+
+            std::cout << command_to_know
+                      << " is a shell builtin\n";
+
             found = true;
-            break;
           }
         }
+
+        if (!found) {
+
+          std::string path_env = std::getenv("PATH");
+          std::stringstream ss_path(path_env);
+
+          std::string path;
+
+          while (std::getline(ss_path, path, ':')) {
+
+            std::string full_path =
+              path + '/' + command_to_know;
+
+            if (access(full_path.c_str(), X_OK) == 0) {
+
+              std::cout << command_to_know
+                        << " is "
+                        << full_path
+                        << '\n';
+
+              found = true;
+              break;
+            }
+          }
+        }
+
+        if (!found) {
+
+          std::cout << command_to_know
+                    << ": not found\n";
+        }
       }
+    }
 
-      if (!found) {
-        std::cout << command_to_know << ": not found\n";
-      }
-
-    } else {
-
-      std::vector<std::string> args;
-      args.push_back(command);
-
-      std::string arg;
-      while (ss >> arg)
-        args.push_back(arg);
+    else {
 
       std::vector<char*> c_args;
-      for (auto& s : args)
+
+      for (auto& s : tokens)
         c_args.push_back(&s[0]);
 
       c_args.push_back(nullptr);
@@ -113,10 +158,13 @@ int main() {
 
         execvp(command.c_str(), c_args.data());
 
-        std::cout << command << ": command not found\n";
-        exit(1);
+        std::cout << command
+                  << ": command not found\n";
 
-      } else {
+        exit(1);
+      }
+
+      else {
 
         waitpid(pid, nullptr, 0);
       }
