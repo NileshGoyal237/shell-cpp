@@ -202,6 +202,22 @@ int main() {
     command_completion;
   
   rl_completion_append_character = ' ';
+
+  char* histfile = std::getenv("HISTFILE");
+  if(histfile) {
+      std::ifstream file(histfile);
+      std::string cmd;
+      while(std::getline(file, cmd)) {
+          if(!cmd.empty()) {
+              his_count++;
+              History h;
+              h.number = his_count;
+              h.command = cmd;
+              history.push_back(h);
+              add_history(cmd.c_str());
+          }
+      }
+  }
   while (true) {
 
     char* input = readline("$ ");
