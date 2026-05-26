@@ -8,6 +8,7 @@
 #include <fcntl.h>
 #include <sys/stat.h>
 #include <dirent.h>
+#include <fstream>
 #include <map>
 #include <set>
 #include <sstream>
