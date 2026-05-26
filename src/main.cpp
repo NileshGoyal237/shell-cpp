@@ -185,14 +185,12 @@ char** command_completion(
 
     for (int i = 0; i < candidates.size(); i++) {
 
-        std::string suffix =
-            candidates[i].substr(strlen(text));
-
         matches[i] =
-            strdup(suffix.c_str());
+            strdup(candidates[i].c_str());
     }
 
     matches[candidates.size()] = nullptr;
+    rl_attempted_completion_over = 1;
 
     return matches;
 }
