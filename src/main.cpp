@@ -445,7 +445,11 @@ int main() {
     }
 
     else if (command == "exit" && pipeline.size()==1) {
-
+      if(histfile){std::ofstream file(histfile);
+      for(auto& h : history) {
+          file << h.command << "\n";
+      }
+      last_written=history.size();}
       break;
     }
 
