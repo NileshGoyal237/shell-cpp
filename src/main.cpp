@@ -383,6 +383,33 @@ int main() {
 
     tokens = actual_tokens;
 
+    for(auto& tok : tokens) {
+        std::string expanded;
+        int i = 0;
+        while(i < tok.size()) {
+            if(tok[i] == '$') {
+                i++;
+                std::string varname;
+                if(i < tok.size() && tok[i] == '{') {
+                    i++; // skip '{'
+                    while(i < tok.size() && tok[i] != '}')
+                        varname += tok[i++];
+                    if(i < tok.size()) i++; // skip '}'
+                } else {
+                    while(i < tok.size() && (isalnum(tok[i]) || tok[i] == '_'))
+                        varname += tok[i++];
+                }
+                if(decl.find(varname) != decl.end())
+                    expanded += decl[varname];
+                else
+                    expanded += "${" + varname + "}";
+            } else {
+                expanded += tok[i++];
+            }
+        }
+        tok = expanded;
+    }
+
     command = tokens[0];
 
     if (command == "echo" && pipeline.size()==1) {
