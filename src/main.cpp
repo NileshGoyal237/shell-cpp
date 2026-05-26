@@ -32,7 +32,7 @@ char* command_generator(const char* text, int state) {
         std::string cmd = commands[index++];
 
         if (cmd.substr(0, strlen(text)) == text)
-            return strdup((cmd + " ").c_str());
+            return strdup(cmd.c_str());
     }
 
     return nullptr;
@@ -57,6 +57,8 @@ int main() {
   std::string command;
   rl_attempted_completion_function =
     command_completion;
+  
+  rl_completion_append_character = ' ';
   while (true) {
 
     char* input = readline("$ ");
