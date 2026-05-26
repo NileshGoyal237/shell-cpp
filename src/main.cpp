@@ -25,7 +25,7 @@ int main() {
 
     for (char c : line) {
 
-      if (c == '\'') {
+      if (c == '\'' || c=='\"') {
         in_single_quote = !in_single_quote;
       }
 
