@@ -296,7 +296,7 @@ int main() {
         pipeline.push_back(current_cmd);
 
     his_count++;
-    struct<History> hiss;
+    History hiss;
     hiss.number=his_count;
     hiss.command=line;
     history.push_back(hiss);
