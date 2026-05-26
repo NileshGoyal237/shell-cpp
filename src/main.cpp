@@ -382,7 +382,10 @@ int main() {
     }
     else if(command=="complete"){
       if (tokens.size() >= 3 ) {
-          if(tokens[1] == "-C"){
+          if(tokens[1]=="-r"){
+            comp.erase(tokens[2]);
+          }
+          else if(tokens[1] == "-C"){
             comp[tokens[3]]=tokens[2];
           }
           else if(tokens[1]=="-p"){
