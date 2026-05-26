@@ -443,11 +443,27 @@ int main() {
       }
     }
     else if(command=="jobs"){
+      for(int i = 0; i < jobs.size(); i++){
+          int status;
+          pid_t result = waitpid(jobs[i].pid, &status, WNOHANG);
+          if(result > 0){
+              jobs[i].status = "Done";
+          }
+      }
       for(int i=0;i<jobs.size();i++){
-        if(i==jobs.size()-1)std::cout << '[' << jobs[i].number << "]+  " << jobs[i].status << "                 " << jobs[i].command << "\n"; 
-        else if(i==jobs.size()-2)std::cout << '[' << jobs[i].number << "]-  " << jobs[i].status << "                 " << jobs[i].command << "\n";
-        else std::cout << '[' << jobs[i].number << "]   " << jobs[i].status << "                 " << jobs[i].command << "\n";
-       }
+        std::string tps(24,' ');
+        for(int j=0;j<jobs[i].status.size();j++){
+          tps[j]=jobs[i].status[j];
+        }
+        if(i==jobs.size()-1)std::cout << '[' << jobs[i].number << "]+  " << tps << jobs[i].command << "\n"; 
+        else if(i==jobs.size()-2)std::cout << '[' << jobs[i].number << "]-  " << tps << jobs[i].command << "\n";
+        else std::cout << '[' << jobs[i].number << "]   " << tps << jobs[i].command << "\n";
+      }
+      jobs.erase(
+          std::remove_if(jobs.begin(), jobs.end(), 
+              [](const Job& j){ return j.status == "Done"; }),
+          jobs.end()
+      );
     }
 
     else if (command == "type") {
