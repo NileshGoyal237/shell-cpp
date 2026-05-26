@@ -428,8 +428,18 @@ int main() {
     }
 
     else if (command == "history" && pipeline.size()==1){
-      for(int i=0;i<history.size();i++){
-        std::cout << history[i].number << "  " << history[i].command << "\n";
+      if(tokens.size()>1){
+        std::string numm=tokens[1];
+        int check=0;
+        for(auto i:numm)chech=check*10+(numm-'0');
+        for(int i=history.size()-check;i<history.size();i++){
+          std::cout << history[i].number << "  " << history[i].command << "\n";
+        }
+      }
+      else{
+        for(int i=0;i<history.size();i++){
+          std::cout << history[i].number << "  " << history[i].command << "\n";
+        }
       }
     }
     else if(command=="complete" && pipeline.size()==1){
