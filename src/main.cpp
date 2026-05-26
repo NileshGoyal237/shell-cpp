@@ -22,6 +22,15 @@
 std::map<std::string,std::string> comp;
 int job_count = 0;
 
+struct Job {
+    int number;
+    pid_t pid;
+    std::string command;
+    std::string status;
+};
+
+std::vector<Job> jobs;
+
 char* command_generator(const char* text, int state) {
 
     static int index;
@@ -434,7 +443,11 @@ int main() {
       }
     }
     else if(command=="jobs"){
-      char a='1';
+      for(int i=0;i<jobs.size();i++){
+        if(i==jobes.size()-1)std::cout << '[' << jobs[i].number << "]+  " << jobs.status << "                 " << jobs.command << "\n"; 
+        else if(i==jobes.size()-2)std::cout << '[' << jobs[i].number << "]-  " << jobs.status << "                 " << jobs.command << "\n";
+        else std::cout << '[' << jobs[i].number << "]   " << jobs.status << "                 " << jobs.command << "\n";
+       }
     }
 
     else if (command == "type") {
@@ -553,6 +566,12 @@ int main() {
       else {
         if (background) {
             job_count++;
+            Job j;
+            j.number = job_count;
+            j.pid = pid;
+            j.command = line;  // original input line
+            j.status = "Running";
+            jobs.push_back(j);
             std::cout << "[" << job_count << "] " << pid << "\n";
             // don't waitpid — let it run in background
         } else{
