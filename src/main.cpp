@@ -74,10 +74,18 @@ char** command_completion(
     int start,
     int end
 ) {
-    return rl_completion_matches(
-        text,
-        command_generator
-    );
+
+    if (start == 0) {
+
+        rl_completion_append_character = ' ';
+
+        return rl_completion_matches(
+            text,
+            command_generator
+        );
+    }
+
+    return nullptr;
 }
 
 int main() {
