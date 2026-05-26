@@ -8,6 +8,9 @@
 #include <fcntl.h>
 #include <sys/stat.h>
 #include <sstream>
+#include <fcntl.h>
+#include <sys/stat.h>
+#include <sstream>
 
 int main() {
   std::cout << std::unitbuf;
@@ -83,8 +86,11 @@ int main() {
     if (tokens.empty())
       continue;
     
-    bool redirect = false;
+    bool stdout_redirect = false;
+    bool stderr_redirect = false;
+
     std::string output_file;
+    std::string error_file;
 
     std::vector<std::string> actual_tokens;
 
@@ -92,15 +98,27 @@ int main() {
 
         if (tokens[i] == ">" || tokens[i] == "1>") {
 
-            redirect = true;
+            stdout_redirect = true;
 
             if (i + 1 < tokens.size())
                 output_file = tokens[i + 1];
 
-            break;
+            i++;
         }
 
-        actual_tokens.push_back(tokens[i]);
+        else if (tokens[i] == "2>") {
+
+            stderr_redirect = true;
+
+            if (i + 1 < tokens.size())
+                error_file = tokens[i + 1];
+
+            i++;
+        }
+
+        else {
+            actual_tokens.push_back(tokens[i]);
+        }
     }
 
     tokens = actual_tokens;
@@ -110,8 +128,9 @@ int main() {
     if (command == "echo") {
 
         int saved_stdout = dup(STDOUT_FILENO);
+        int saved_stderr = dup(STDERR_FILENO);
 
-        if (redirect) {
+        if (stdout_redirect) {
 
             int fd = open(
                 output_file.c_str(),
@@ -120,6 +139,18 @@ int main() {
             );
 
             dup2(fd, STDOUT_FILENO);
+            close(fd);
+        }
+
+        if (stderr_redirect) {
+
+            int fd = open(
+                error_file.c_str(),
+                O_WRONLY | O_CREAT | O_TRUNC,
+                0644
+            );
+
+            dup2(fd, STDERR_FILENO);
             close(fd);
         }
 
@@ -134,12 +165,13 @@ int main() {
         std::cout << '\n';
 
         std::cout.flush();
+        std::cerr.flush();
 
-        if (redirect) {
+        dup2(saved_stdout, STDOUT_FILENO);
+        dup2(saved_stderr, STDERR_FILENO);
 
-            dup2(saved_stdout, STDOUT_FILENO);
-            close(saved_stdout);
-        }
+        close(saved_stdout);
+        close(saved_stderr);
     }
 
     else if (command == "exit") {
@@ -234,25 +266,39 @@ int main() {
       pid_t pid = fork();
 
       if (pid == 0) {
-        if (redirect) {
 
-            int fd = open(
-                output_file.c_str(),
-                O_WRONLY | O_CREAT | O_TRUNC,
-                0644
-            );
+          if (stdout_redirect) {
 
-            dup2(fd, STDOUT_FILENO);
+              int fd = open(
+                  output_file.c_str(),
+                  O_WRONLY | O_CREAT | O_TRUNC,
+                  0644
+              );
 
-            close(fd);
-        }
+              dup2(fd, STDOUT_FILENO);
 
-        execvp(command.c_str(), c_args.data());
+              close(fd);
+          }
 
-        std::cout << command
-                  << ": command not found\n";
+          if (stderr_redirect) {
 
-        exit(1);
+              int fd = open(
+                  error_file.c_str(),
+                  O_WRONLY | O_CREAT | O_TRUNC,
+                  0644
+              );
+
+              dup2(fd, STDERR_FILENO);
+
+              close(fd);
+          }
+
+          execvp(command.c_str(), c_args.data());
+
+          std::cerr << command
+                    << ": command not found\n";
+
+          exit(1);
       }
 
       else {
