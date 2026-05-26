@@ -25,9 +25,30 @@ int main() {
     char cc='!';
     for (char c : line) {
 
-      if ((c == '\'' || c=='\"')) {
-        if(c==cc)cc='!';
-        else if(cc=='!')cc=c;
+      if (c == '\'') {
+
+        if (cc == '!') {
+            cc = '\'';
+        }
+        else if (cc == '\'') {
+            cc = '!';
+        }
+        else {
+            current += c;
+        }
+      }
+
+      else if (c == '\"') {
+
+          if (cc == '!') {
+              cc = '\"';
+          }
+          else if (cc == '\"') {
+              cc = '!';
+          }
+          else {
+              current += c;
+          }
       }
 
       else if (std::isspace(c) && cc=='!') {
