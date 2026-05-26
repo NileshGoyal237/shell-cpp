@@ -193,6 +193,10 @@ int main() {
   
   rl_completion_append_character = ' ';
   while (true) {
+      for(int i=0;i<jobs.size();i++){
+        jobs[i].number=i+1;
+      }
+      job_count=jobs.size();
 
     char* input = readline("$ ");
 
@@ -595,6 +599,25 @@ int main() {
           waitpid(pid, nullptr, 0);
         }
       }
+    }
+    if(command!=jobs){  
+      for(int i = 0; i < jobs.size(); i++){
+          int status;
+          pid_t result = waitpid(jobs[i].pid, &status, WNOHANG);
+          if(result > 0){
+              jobs[i].status = "Done";
+          }
+      }
+      for(int i=0;i<jobs.size();i++){
+        if(i==jobs.size()-1 && jobs[i].status == "Done")std::cout << '[' << jobs[i].number << "]+  " << jobs[i].status << "                 " << jobs[i].command << "\n"; 
+        else if(i==jobs.size()-2 && jobs[i].status == "Done")std::cout << '[' << jobs[i].number << "]-  " << jobs[i].status << "                 " << jobs[i].command << "\n";
+        else if(jobs[i].status == "Done") std::cout << '[' << jobs[i].number << "]   " << jobs[i].status << "                 " << jobs[i].command << "\n";
+      }
+      jobs.erase(
+          std::remove_if(jobs.begin(), jobs.end(), 
+              [](const Job& j){ return j.status == "Done"; }),
+          jobs.end()
+      );
     }
   }
 }
