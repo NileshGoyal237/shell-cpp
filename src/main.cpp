@@ -296,7 +296,15 @@ int main() {
 
       break;
     }
+    else if(command=="complete"){
+      if (tokens.size() >= 3 && tokens[1] == "-p") {
 
+          std::cout
+              << "complete: "
+              << tokens[2]
+              << ": no completion specification\n";
+      }
+    }
     else if (command == "pwd") {
 
       std::cout << std::filesystem::current_path().string() << '\n';
