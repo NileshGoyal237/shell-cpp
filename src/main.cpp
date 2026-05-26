@@ -20,6 +20,7 @@
 #include <cstring>
 
 std::map<std::string,std::string> comp;
+int job_count = 0;
 
 char* command_generator(const char* text, int state) {
 
@@ -254,6 +255,13 @@ int main() {
 
     if (tokens.empty())
       continue;
+
+    bool background = false;
+
+    if (!tokens.empty() && tokens.back() == "&") {
+        background = true;
+        tokens.pop_back();
+    }
     
     bool stdout_redirect = false;
     bool stderr_redirect = false;
@@ -543,8 +551,13 @@ int main() {
       }
 
       else {
-
-        waitpid(pid, nullptr, 0);
+        if (background) {
+            job_count++;
+            std::cout << "[" << job_count << "] " << pid << "\n";
+            // don't waitpid — let it run in background
+        } else{
+          waitpid(pid, nullptr, 0);
+        }
       }
     }
   }
