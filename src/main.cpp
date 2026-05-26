@@ -185,8 +185,11 @@ char** command_completion(
 
     for (int i = 0; i < candidates.size(); i++) {
 
+        std::string suffix =
+            candidates[i].substr(strlen(text));
+
         matches[i] =
-            strdup(candidates[i].c_str());
+            strdup(suffix.c_str());
     }
 
     matches[candidates.size()] = nullptr;
