@@ -7,6 +7,8 @@
 #include <vector>
 #include <fcntl.h>
 #include <sys/stat.h>
+#include <dirent.h>
+#include <set>
 #include <sstream>
 #include <fcntl.h>
 #include <sys/stat.h>
@@ -19,15 +21,44 @@ char* command_generator(const char* text, int state) {
 
     static int index;
 
-    static std::string commands[] = {
+    std::vector<std::string> commands = {
         "echo",
         "exit"
     };
+    std::string path_env = std::getenv("PATH");
+
+    std::stringstream ss(path_env);
+
+    std::string path;
+
+    while (std::getline(ss, path, ':')) {
+
+        DIR* dir = opendir(path.c_str());
+
+        if (!dir)
+            continue;
+
+        struct dirent* entry;
+
+        while ((entry = readdir(dir)) != nullptr) {
+
+            std::string file = entry->d_name;
+
+            std::string full_path =
+                path + "/" + file;
+
+            if (access(full_path.c_str(), X_OK) == 0) {
+                commands.push_back(file);
+            }
+        }
+
+        closedir(dir);
+    }
 
     if (state == 0)
         index = 0;
 
-    while (index < 2) {
+    while (index < commands.size()) {
 
         std::string cmd = commands[index++];
 
