@@ -479,11 +479,19 @@ int main() {
     }
     else if(command=="jobs"){
       for(int i = 0; i < jobs.size(); i++){
-          int status;
-          pid_t result = waitpid(jobs[i].pid, &status, WNOHANG);
-          if(result > 0){
-              jobs[i].status = "Done";
-          }
+        int status;
+        pid_t result = waitpid(jobs[i].pid, &status, WNOHANG);
+        if(result > 0){
+            jobs[i].status = "Done";
+        } else if(result == 0) {
+            // Still check if process actually exists
+            if(kill(jobs[i].pid, 0) != 0){
+                jobs[i].status = "Done";
+            }
+        } else {
+            // result == -1, process no longer exists
+            jobs[i].status = "Done";
+        }
       }
       for(int i=0;i<jobs.size();i++){
         if(i==jobs.size()-1)std::cout << '[' << jobs[i].number << "]+  " << jobs[i].status << "                 " << jobs[i].command << "\n"; 
@@ -754,11 +762,19 @@ int main() {
     }
     if(command!="jobs"){  
       for(int i = 0; i < jobs.size(); i++){
-          int status;
-          pid_t result = waitpid(jobs[i].pid, &status, WNOHANG);
-          if(result > 0){
-              jobs[i].status = "Done";
-          }
+        int status;
+        pid_t result = waitpid(jobs[i].pid, &status, WNOHANG);
+        if(result > 0){
+            jobs[i].status = "Done";
+        } else if(result == 0) {
+            // Still check if process actually exists
+            if(kill(jobs[i].pid, 0) != 0){
+                jobs[i].status = "Done";
+            }
+        } else {
+            // result == -1, process no longer exists
+            jobs[i].status = "Done";
+        }
       }
       for(int i=0;i<jobs.size();i++){
         if(i==jobs.size()-1 && jobs[i].status == "Done")std::cout << '[' << jobs[i].number << "]+  " << jobs[i].status << "                 " << jobs[i].command << "\n"; 
