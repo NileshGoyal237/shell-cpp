@@ -192,6 +192,8 @@ int main() {
   std::cout << std::unitbuf;
   std::cerr << std::unitbuf;
 
+  using_history();
+
   std::string line;
   std::string command;
   rl_attempted_completion_function =
