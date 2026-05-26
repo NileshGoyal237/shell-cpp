@@ -431,7 +431,7 @@ int main() {
       if(tokens.size()>1){
         std::string numm=tokens[1];
         int check=0;
-        for(auto i:numm)chech=check*10+(numm-'0');
+        for(auto i:numm)check=check*10+(i-'0');
         for(int i=history.size()-check;i<history.size();i++){
           std::cout << history[i].number << "  " << history[i].command << "\n";
         }
