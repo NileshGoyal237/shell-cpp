@@ -22,7 +22,7 @@ int main() {
 
     std::string current;
     bool in_single_quote = false;
-    std::char cc='!';
+    char cc='!';
     for (char c : line) {
 
       if ((c == '\'' || c=='\"')) {
