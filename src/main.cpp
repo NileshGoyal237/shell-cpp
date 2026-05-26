@@ -580,15 +580,15 @@ int main() {
 
       bool found = false;
 
-      std::string builtin[8] = {
-        "echo", "exit", "type", "pwd", "cd" ,"complete","jobs","history"
+      std::string builtin[9] = {
+        "echo", "exit", "type", "pwd", "cd" ,"complete","jobs","history","declare"
       };
 
       if (tokens.size() > 1) {
 
         std::string command_to_know = tokens[1];
 
-        for (int i = 0; i < 8; i++) {
+        for (int i = 0; i < 9; i++) {
 
           if (builtin[i] == command_to_know) {
 
