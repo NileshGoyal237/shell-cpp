@@ -11,6 +11,7 @@
 #include <map>
 #include <set>
 #include <sstream>
+#include <algorithm>
 #include <fcntl.h>
 #include <sys/stat.h>
 #include <sstream>
@@ -149,39 +150,46 @@ char** command_completion(
     if (!fp)
         return nullptr;
 
+    std::vector<std::string> candidates;
+
     char buffer[1024];
 
-    if (fgets(buffer, sizeof(buffer), fp) == nullptr) {
+    while (fgets(buffer, sizeof(buffer), fp)) {
 
-        pclose(fp);
+        std::string candidate = buffer;
 
-        return nullptr;
+        if (!candidate.empty() &&
+            candidate.back() == '\n')
+            candidate.pop_back();
+
+        candidates.push_back(candidate);
     }
 
     pclose(fp);
-    if (old_line)
-        setenv("COMP_LINE", old_line, 1);
-    else
-        unsetenv("COMP_LINE");
 
-    if (old_point)
-        setenv("COMP_POINT", old_point, 1);
-    else
-        unsetenv("COMP_POINT");
+    if (candidates.empty())
+        return nullptr;
 
-    std::string candidate = buffer;
-
-    if (!candidate.empty() &&
-        candidate.back() == '\n')
-        candidate.pop_back();
+    std::sort(
+        candidates.begin(),
+        candidates.end()
+    );
 
     rl_completion_append_character = ' ';
 
     char** matches =
-        (char**)malloc(2 * sizeof(char*));
+        (char**)malloc(
+            (candidates.size() + 1)
+            * sizeof(char*)
+        );
 
-    matches[0] = strdup(candidate.c_str());
-    matches[1] = nullptr;
+    for (int i = 0; i < candidates.size(); i++) {
+
+        matches[i] =
+            strdup(candidates[i].c_str());
+    }
+
+    matches[candidates.size()] = nullptr;
 
     return matches;
 }
