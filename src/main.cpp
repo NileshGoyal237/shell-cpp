@@ -30,7 +30,7 @@ int main() {
           escape = false;
       }
 
-      else if (c == '\\') {
+      else if (c == '\\' && cc!='\'') {
           escape = true;
       }
       else if (c == '\'') {
