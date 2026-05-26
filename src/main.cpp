@@ -146,8 +146,23 @@ char** command_completion(
     // Multiple candidates
     rl_completion_append_character = '\0';
 
+    // Compute LCP
+    std::string lcp = candidates[0];
+    for (int i = 1; i < (int)candidates.size(); i++) {
+        int j = 0;
+        while (j < (int)lcp.size() && j < (int)candidates[i].size() && lcp[j] == candidates[i][j])
+            j++;
+        lcp = lcp.substr(0, j);
+    }
+
     char** matches = (char**)malloc((candidates.size() + 2) * sizeof(char*));
-    matches[0] = strdup("");  // empty prefix — just show the list
+
+    // If LCP is longer than what user typed, set it as matches[0] so readline inserts it
+    if (lcp.size() > strlen(text)) {
+        matches[0] = strdup(lcp.c_str());
+    } else {
+        matches[0] = strdup("");  // no new chars to add, just show list
+    }
 
     for (int i = 0; i < (int)candidates.size(); i++) {
         matches[i + 1] = strdup(candidates[i].c_str());
