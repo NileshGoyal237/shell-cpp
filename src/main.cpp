@@ -460,7 +460,7 @@ int main() {
           bool equlto=false;
           bool validity=true;
           for(auto i:tokens[1]){
-            if(i>'z' || (i<'a' &&& i>'Z') || i<'A')validity=false;
+            if(i>'z' || (i<'a' && i>'Z') || i<'A')validity=false;
             if(i=='=')equlto=true;
             else if(equlto)val+=i;
             else key+=i;
