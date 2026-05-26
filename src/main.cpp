@@ -42,8 +42,8 @@ int main() {
       if (!current.empty()) {
         tokens.push_back(current);
       }
-      for(auto i:tokens)
-        std::cout << i << " ";
+      for (int i = 1; i < tokens.size(); i++)
+        std::cout << tokens[i] << " ";
       std::cout << std::endl;
 
     } else if (command == "exit") {
