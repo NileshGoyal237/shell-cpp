@@ -458,7 +458,7 @@ int main() {
           key="";
           val="";
           bool equlto=false;
-          for(auto i:tokens[2]){
+          for(auto i:tokens[1]){
             if(i=='=')equlto=true;
             else if(equlto)val+=i;
             else key+=i;
