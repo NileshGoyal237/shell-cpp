@@ -350,7 +350,7 @@ int main() {
 
     command = tokens[0];
 
-    if (command == "echo") {
+    if (command == "echo" && pipeline.size()==1) {
 
         int saved_stdout = dup(STDOUT_FILENO);
         int saved_stderr = dup(STDERR_FILENO);
@@ -410,11 +410,11 @@ int main() {
         close(saved_stderr);
     }
 
-    else if (command == "exit") {
+    else if (command == "exit" && pipeline.size()==1) {
 
       break;
     }
-    else if(command=="complete"){
+    else if(command=="complete" && pipeline.size()==1){
       if (tokens.size() >= 3 ) {
           if(tokens[1]=="-r"){
             comp.erase(tokens[2]);
@@ -441,7 +441,7 @@ int main() {
           }
       }
     }
-    else if (command == "pwd") {
+    else if (command == "pwd" && pipeline.size()==1) {
 
       std::cout << std::filesystem::current_path().string() << '\n';
     }
@@ -479,7 +479,7 @@ int main() {
       );
     }
 
-    else if (command == "type") {
+    else if (command == "type" && pipeline.size()==1) {
 
       bool found = false;
 
