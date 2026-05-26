@@ -409,6 +409,12 @@ int main() {
         }
         tok = expanded;
     }
+    // remove tokens that expanded to empty string
+    tokens.erase(
+        std::remove_if(tokens.begin(), tokens.end(),
+            [](const std::string& s){ return s.empty(); }),
+        tokens.end()
+    );
 
     command = tokens[0];
 
